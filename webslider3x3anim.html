@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3x3 Slide Puzzle</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@700&display=swap');
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: Arial, sans-serif;
+    }
+    #container {
+      text-align: center;
+    }
+    #board {
+      position: relative;
+      width: 70vmin;
+      height: 70vmin;
+      padding: 10px;
+      background-color: white;
+      border: 20px solid red;
+      box-sizing: border-box;
+      margin: 0 auto 20px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 5px;
+    }
+    .tile {
+      font-size: 14vmin;
+      font-family: 'Roboto Mono', monospace;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #f0c674;
+      border-radius: 5px;
+      border: 2px solid black;
+      cursor: pointer;
+      user-select: none;
+      position: absolute;
+      width: calc(100% / 3 - 10px);
+      height: calc(100% / 3 - 10px);
+      transition: top 0.5s ease, left 0.5s ease;
+    }
+    .empty {
+      display: none;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+    #message {
+      margin-top: 20px;
+      font-size: 3em;
+      color: green;
+      font-weight: bold;
+      text-shadow: 2px 2px 4px #000;
+    }
+    #moveCounter {
+      margin-top: 10px;
+      font-size: 1.5em;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <h1>3x3 Slide Puzzle</h1>
+    <div id="board"></div>
+    <button onclick="startGame()">Start</button>
+    <p id="moveCounter">Moves: 0</p>
+    <p id="message"></p>
+  </div>
+
+  <script>
+    let board = [];
+    const size = 3;
+    let moveCount = 0;
+
+    function startGame() {
+      let numbers = [...Array(8).keys()].map(n => n + 1);
+      numbers.push(null);
+      do {
+        shuffle(numbers);
+      } while (!isSolvable(numbers));
+
+      board = [];
+      while (numbers.length) board.push(numbers.splice(0, size));
+      moveCount = 0;
+      updateMoveCounter();
+      drawBoard();
+      document.getElementById('message').textContent = '';
+    }
+
+    function drawBoard() {
+      const boardEl = document.getElementById('board');
+      boardEl.innerHTML = '';
+
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          const value = board[r][c];
+          if (value === null) continue;
+          const tile = document.createElement('div');
+          tile.className = 'tile';
+          tile.textContent = value;
+          tile.dataset.row = r;
+          tile.dataset.col = c;
+          tile.style.top = `calc(${(100 / size) * r}% + ${5 * r}px)`;
+          tile.style.left = `calc(${(100 / size) * c}% + ${5 * c}px)`;
+          tile.addEventListener('click', () => moveTile(r, c));
+          boardEl.appendChild(tile);
+        }
+      }
+    }
+
+    function moveTile(r, c) {
+      const directions = [[1,0], [-1,0], [0,1], [0,-1]];
+      for (let [dr, dc] of directions) {
+        const nr = r + dr, nc = c + dc;
+        if (nr >= 0 && nr < size && nc >= 0 && nc < size && board[nr][nc] === null) {
+          [board[r][c], board[nr][nc]] = [board[nr][nc], board[r][c]];
+          moveCount++;
+          updateMoveCounter();
+          animateMove(r, c, nr, nc);
+          if (checkWin()) document.getElementById('message').textContent = '🎉 Congratulations! You solved it! 🎉';
+          return;
+        }
+      }
+    }
+
+    function animateMove(fromR, fromC, toR, toC) {
+      const tiles = document.querySelectorAll('.tile');
+      tiles.forEach(tile => {
+        if (parseInt(tile.dataset.row) === fromR && parseInt(tile.dataset.col) === fromC) {
+          tile.dataset.row = toR;
+          tile.dataset.col = toC;
+          tile.style.top = `calc(${(100 / size) * toR}% + ${5 * toR}px)`;
+          tile.style.left = `calc(${(100 / size) * toC}% + ${5 * toC}px)`;
+        }
+      });
+    }
+
+    function updateMoveCounter() {
+      document.getElementById('moveCounter').textContent = `Moves: ${moveCount}`;
+    }
+
+    function checkWin() {
+      let count = 1;
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          if (r === size - 1 && c === size - 1) return board[r][c] === null;
+          if (board[r][c] !== count++) return false;
+        }
+      }
+    }
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    function isSolvable(arr) {
+      const a = arr.filter(n => n !== null);
+      let invCount = 0;
+      for (let i = 0; i < a.length - 1; i++) {
+        for (let j = i + 1; j < a.length; j++) {
+          if (a[i] > a[j]) invCount++;
+        }
+      }
+      return invCount % 2 === 0;
+    }
+
+    startGame();
+  </script>
+</body>
+</html>
