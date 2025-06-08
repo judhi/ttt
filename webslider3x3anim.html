@@ -100,14 +100,9 @@
       for (let r = 0; r < size; r++) {
         for (let c = 0; c < size; c++) {
           const value = board[r][c];
-          if (value === null) continue;
           const tile = document.createElement('div');
-          tile.className = 'tile';
-          tile.textContent = value;
-          tile.dataset.row = r;
-          tile.dataset.col = c;
-          tile.style.top = `calc(${(100 / size) * r}% + ${5 * r}px)`;
-          tile.style.left = `calc(${(100 / size) * c}% + ${5 * c}px)`;
+          tile.className = 'tile' + (value === null ? ' empty' : '');
+          tile.textContent = value || '';
           tile.addEventListener('click', () => moveTile(r, c));
           boardEl.appendChild(tile);
         }
@@ -122,23 +117,11 @@
           [board[r][c], board[nr][nc]] = [board[nr][nc], board[r][c]];
           moveCount++;
           updateMoveCounter();
-          animateMove(r, c, nr, nc);
+          drawBoard();
           if (checkWin()) document.getElementById('message').textContent = '🎉 Congratulations! You solved it! 🎉';
           return;
         }
       }
-    }
-
-    function animateMove(fromR, fromC, toR, toC) {
-      const tiles = document.querySelectorAll('.tile');
-      tiles.forEach(tile => {
-        if (parseInt(tile.dataset.row) === fromR && parseInt(tile.dataset.col) === fromC) {
-          tile.dataset.row = toR;
-          tile.dataset.col = toC;
-          tile.style.top = `calc(${(100 / size) * toR}% + ${5 * toR}px)`;
-          tile.style.left = `calc(${(100 / size) * toC}% + ${5 * toC}px)`;
-        }
-      });
     }
 
     function updateMoveCounter() {
