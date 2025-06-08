@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3x3 Slide Puzzle</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 40px;
+    }
+    #board {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 5px;
+      margin: 0 auto;
+      width: 70vmin;
+      height: 70vmin;
+    }
+    .tile {
+      font-size: 6vmin;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #f0c674;
+      border-radius: 5px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .empty {
+      background-color: #eee;
+      cursor: default;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+    #message {
+      margin-top: 20px;
+      font-size: 2em;
+      color: green;
+      font-weight: bold;
+      text-shadow: 1px 1px 2px #000;
+    }
+    #moveCounter {
+      margin-top: 10px;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <h1>3x3 Slide Puzzle</h1>
+  <div id="board"></div>
+  <button onclick="startGame()">Start</button>
+  <p id="moveCounter">Moves: 0</p>
+  <p id="message"></p>
+
+  <script>
+    let board = [];
+    const size = 3;
+    let moveCount = 0;
+
+    function startGame() {
+      let numbers = [...Array(8).keys()].map(n => n + 1);
+      numbers.push(null);
+      do {
+        shuffle(numbers);
+      } while (!isSolvable(numbers));
+
+      board = [];
+      while (numbers.length) board.push(numbers.splice(0, size));
+      moveCount = 0;
+      updateMoveCounter();
+      drawBoard();
+      document.getElementById('message').textContent = '';
+    }
+
+    function drawBoard() {
+      const boardEl = document.getElementById('board');
+      boardEl.innerHTML = '';
+
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          const value = board[r][c];
+          const tile = document.createElement('div');
+          tile.className = 'tile' + (value === null ? ' empty' : '');
+          tile.textContent = value || '';
+          tile.addEventListener('click', () => moveTile(r, c));
+          boardEl.appendChild(tile);
+        }
+      }
+    }
+
+    function moveTile(r, c) {
+      const directions = [[1,0], [-1,0], [0,1], [0,-1]];
+      for (let [dr, dc] of directions) {
+        const nr = r + dr, nc = c + dc;
+        if (nr >= 0 && nr < size && nc >= 0 && nc < size && board[nr][nc] === null) {
+          [board[r][c], board[nr][nc]] = [board[nr][nc], board[r][c]];
+          moveCount++;
+          updateMoveCounter();
+          drawBoard();
+          if (checkWin()) document.getElementById('message').textContent = '🎉 Congratulations! You solved it! 🎉';
+          return;
+        }
+      }
+    }
+
+    function updateMoveCounter() {
+      document.getElementById('moveCounter').textContent = `Moves: ${moveCount}`;
+    }
+
+    function checkWin() {
+      let count = 1;
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          if (r === size - 1 && c === size - 1) return board[r][c] === null;
+          if (board[r][c] !== count++) return false;
+        }
+      }
+    }
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    function isSolvable(arr) {
+      const a = arr.filter(n => n !== null);
+      let invCount = 0;
+      for (let i = 0; i < a.length - 1; i++) {
+        for (let j = i + 1; j < a.length; j++) {
+          if (a[i] > a[j]) invCount++;
+        }
+      }
+      return invCount % 2 === 0;
+    }
+
+    startGame();
+  </script>
+</body>
+</html>
