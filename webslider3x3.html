@@ -5,19 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>3x3 Slide Puzzle</title>
   <style>
-    body {
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-family: Arial, sans-serif;
+    }
+    #container {
       text-align: center;
-      margin-top: 40px;
     }
     #board {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       grid-template-rows: repeat(3, 1fr);
       gap: 5px;
-      margin: 0 auto;
       width: 70vmin;
       height: 70vmin;
+      border: 20px solid red;
+      box-sizing: border-box;
+      margin: 0 auto 20px;
     }
     .tile {
       font-size: 6vmin;
@@ -34,16 +43,15 @@
       cursor: default;
     }
     button {
-      margin-top: 20px;
       padding: 10px 20px;
       font-size: 16px;
     }
     #message {
       margin-top: 20px;
-      font-size: 2em;
+      font-size: 2.5em;
       color: green;
       font-weight: bold;
-      text-shadow: 1px 1px 2px #000;
+      text-shadow: 2px 2px 4px #000;
     }
     #moveCounter {
       margin-top: 10px;
@@ -52,11 +60,13 @@
   </style>
 </head>
 <body>
-  <h1>3x3 Slide Puzzle</h1>
-  <div id="board"></div>
-  <button onclick="startGame()">Start</button>
-  <p id="moveCounter">Moves: 0</p>
-  <p id="message"></p>
+  <div id="container">
+    <h1>3x3 Slide Puzzle</h1>
+    <div id="board"></div>
+    <button onclick="startGame()">Start</button>
+    <p id="moveCounter">Moves: 0</p>
+    <p id="message"></p>
+  </div>
 
   <script>
     let board = [];
