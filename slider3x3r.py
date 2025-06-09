@@ -263,9 +263,9 @@ class SlidingPuzzleSolver:
                 new_state[empty_row][empty_col] = new_state[new_row][new_col]
                 new_state[new_row][new_col] = 0
                 
-                # Return the number that was moved
-                moved_number = state[new_row][new_col]
-                neighbors.append((new_state, moved_number))
+                # Return the coordinates of the cell that should be clicked (1-indexed)
+                cell_coordinates = (new_row + 1, new_col + 1)
+                neighbors.append((new_state, cell_coordinates))
         
         return neighbors
     
@@ -287,12 +287,12 @@ class SlidingPuzzleSolver:
             # Get all possible moves
             neighbors = self.get_neighbors(current_state)
             
-            for next_state, moved_number in neighbors:
+            for next_state, cell_coordinates in neighbors:
                 state_tuple = self.state_to_tuple(next_state)
                 
                 if state_tuple not in visited:
                     visited.add(state_tuple)
-                    new_moves = moves + [moved_number]
+                    new_moves = moves + [cell_coordinates]
                     
                     if next_state == self.goal_state:
                         return new_moves
@@ -337,9 +337,11 @@ class SlidingPuzzleSolver:
                         solution = self.solve_puzzle(state)
                         
                         if solution:
-                            print(f"\nSolution found! Move these tiles in order:")
-                            print(f"Sequence: {' -> '.join(map(str, solution))}")
+                            print(f"\nSolution found! Click these cells in order:")
+                            coordinate_strings = [f"({coord[0]},{coord[1]})" for coord in solution]
+                            print(f"Sequence: {' -> '.join(coordinate_strings)}")
                             print(f"Total moves: {len(solution)}")
+                            print("\nCoordinate system: (row, column) where (1,1) is top-left and (3,3) is bottom-right")
                         else:
                             print("No solution found. The puzzle might be unsolvable.")
                     else:
