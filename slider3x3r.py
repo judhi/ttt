@@ -263,9 +263,12 @@ class SlidingPuzzleSolver:
                 new_state[empty_row][empty_col] = new_state[new_row][new_col]
                 new_state[new_row][new_col] = 0
                 
-                # Return the coordinates of the cell that should be clicked (1-indexed)
-                cell_coordinates = (new_row + 1, new_col + 1)
-                neighbors.append((new_state, cell_coordinates))
+                # Convert coordinates to cell number (1-9)
+                # Cell numbering: 1 2 3
+                #                 4 5 6  
+                #                 7 8 9
+                cell_number = new_row * 3 + new_col + 1
+                neighbors.append((new_state, cell_number))
         
         return neighbors
     
@@ -287,12 +290,12 @@ class SlidingPuzzleSolver:
             # Get all possible moves
             neighbors = self.get_neighbors(current_state)
             
-            for next_state, cell_coordinates in neighbors:
+            for next_state, cell_number in neighbors:
                 state_tuple = self.state_to_tuple(next_state)
                 
                 if state_tuple not in visited:
                     visited.add(state_tuple)
-                    new_moves = moves + [cell_coordinates]
+                    new_moves = moves + [cell_number]
                     
                     if next_state == self.goal_state:
                         return new_moves
@@ -338,10 +341,12 @@ class SlidingPuzzleSolver:
                         
                         if solution:
                             print(f"\nSolution found! Click these cells in order:")
-                            coordinate_strings = [f"({coord[0]},{coord[1]})" for coord in solution]
-                            print(f"Sequence: {' -> '.join(coordinate_strings)}")
+                            print(f"Sequence: {' -> '.join(map(str, solution))}")
                             print(f"Total moves: {len(solution)}")
-                            print("\nCoordinate system: (row, column) where (1,1) is top-left and (3,3) is bottom-right")
+                            print("\nCell numbering:")
+                            print("1 2 3")
+                            print("4 5 6")
+                            print("7 8 9")
                         else:
                             print("No solution found. The puzzle might be unsolvable.")
                     else:
